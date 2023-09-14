@@ -1,5 +1,7 @@
 # Android Sensor and Location Tracker
 
+![Texto alternativo](imagen.jpg)
+
 ## Descripción
 
 Este proyecto de Android tiene como objetivo recopilar y almacenar datos de varios sensores del dispositivo, como el acelerómetro, el giroscopio, el sensor de gravedad y el campo magnético. Además, también rastrea la ubicación del dispositivo utilizando el GPS. Todos los datos recopilados se almacenan en un archivo en el almacenamiento del dispositivo para su posterior análisis.
