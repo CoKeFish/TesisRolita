@@ -1,6 +1,6 @@
 # Android Sensor and Location Tracker
 
-![Texto alternativo](./imagen.jpg)
+![Texto alternativo](image.png)
 
 ## Descripción
 
