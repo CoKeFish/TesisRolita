@@ -23,10 +23,3 @@ Este proyecto de Android tiene como objetivo recopilar y almacenar datos de vari
 3. Asegúrese de conceder los permisos necesarios cuando se le solicite.
 4. Ejecute la aplicación en un dispositivo Android real o en un emulador con las API de Google Play Services instaladas.
 
-## Contribución
-
-Las contribuciones son bienvenidas. Por favor, abra un "pull request" para proponer cambios o abra un "issue" para discutir lo que le gustaría cambiar.
-
-## Licencia
-
-Este proyecto está bajo la licencia MIT - vea el archivo [LICENSE.md](LICENSE.md) para más detalles.
