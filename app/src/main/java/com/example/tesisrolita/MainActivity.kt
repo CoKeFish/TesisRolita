@@ -77,6 +77,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
 
+    //Estado conectado
+    private var connetStatus = false
+
 
     //Fucion que escribe en el archivo
     private fun writeSensorDataToFile() {
@@ -95,7 +98,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         try {
             val stream = FileOutputStream(file, true) // Abre en modo "append"
             writer = OutputStreamWriter(stream)
-            writer.write("$timestamp, Accel: $lastX, $lastY, $lastZ, Gyro: $lastGyroX, $lastGyroY, $lastGyroZ, Gravity: $lastGravityX, $lastGravityY, $lastGravityZ, Orientation: $lastOrientationX, $lastOrientationY, $lastOrientationZ, GPS: $lastLatitude, $lastLongitude\n")
+            writer.write("$timestamp, $lastX, $lastY, $lastZ, $lastGyroX, $lastGyroY, $lastGyroZ, $lastGravityX, $lastGravityY, $lastGravityZ, $lastOrientationX, $lastOrientationY, $lastOrientationZ, $lastLatitude, $lastLongitude\n")
             writer.flush()
         } catch (e: IOException) {
             // Manejar la excepción y finalizar
@@ -114,12 +117,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private val runnableCode: Runnable = object : Runnable {
         override fun run() {
-            // Aquí va el código que quieres ejecutar de forma periódica
-            writeSensorDataToFile()
-            handler.postDelayed(this, 1000) // Repite cada 1000 ms (1 segundo)
-
-            //Log.d("TAG", "Conchita")
-
+            if (connetStatus) {
+                // Aquí va el código que quieres ejecutar de forma periódica
+                writeSensorDataToFile()
+            }
+            // Repite cada 1000 ms (1 segundo), independientemente del valor de shouldRun
+            handler.postDelayed(this, 20)
         }
     }
 
@@ -162,22 +165,24 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
 
         //Botones
-        findViewById<Button>(R.id.button).setOnClickListener {
+        val bttn = findViewById<Button>(R.id.button)
+        bttn.setOnClickListener {
 
+            connetStatus = !connetStatus
+            if (connetStatus)
+            {
+                bttn.text = "Desconectar"
+                startForegroundService(Intent(this, LocationService::class.java))
+                sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
+                handler.post(runnableCode) // Iniciar el Runnable
 
-            Log.d("TAG", "sssds.absolutePath")
-
-            val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            val file = File(path, "Texto.txt")
-
-            try {
-                val stream = FileOutputStream(file)
-                val writer = OutputStreamWriter(stream)
-                writer.write("Un simple texto")
-                writer.flush()
-                writer.close()
-            } catch (e: IOException) {
-                // Manejar la excepción
+            }
+            else
+            {
+                bttn.text = "Conectar"
+                stopService(Intent(this, LocationService::class.java))
+                sensorManager.unregisterListener(this)
+                handler.removeCallbacks(runnableCode) // Detener el Runnable
             }
 
         }
@@ -218,8 +223,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onResume() {
         super.onResume()
         // Registrar nuevamente el listener cuando la actividad se reanuda
-        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
-        handler.post(runnableCode) // Iniciar el Runnable
+        // sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
+        // handler.post(runnableCode) // Iniciar el Runnable
     }
 
     override fun onPause() {
