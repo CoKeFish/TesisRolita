@@ -60,6 +60,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val handlerUpdate = Handler(Looper.getMainLooper())
+
+    private val runnableCodeUpdate: Runnable = object : Runnable {
+        override fun run() {
+            if (connetStatus) {
+                // Aquí va el código que quieres ejecutar de forma periódica
+                dataSensorManager.updateFirestore()
+            }
+            // Repite cada 1000 ms (1 segundo), independientemente del valor de shouldRun
+            handlerUpdate.postDelayed(this, 5000)
+        }
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,6 +103,7 @@ class MainActivity : AppCompatActivity() {
                 bttn.text = "Desconectar"
                 startForegroundService(Intent(this, LocationService::class.java))
                 handler.post(runnableCode) // Iniciar el Runnable
+                handlerUpdate.post(runnableCodeUpdate) // Iniciar el Runnable
 
             }
             else
@@ -97,6 +111,7 @@ class MainActivity : AppCompatActivity() {
                 bttn.text = "Conectar"
                 stopService(Intent(this, LocationService::class.java))
                 handler.removeCallbacks(runnableCode) // Detener el Runnable
+                handlerUpdate.removeCallbacks(runnableCodeUpdate) // Detener el Runnable
             }
 
         }

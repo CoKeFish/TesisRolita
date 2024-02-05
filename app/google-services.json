@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "943482955874",
+    "project_id": "larolitaapp",
+    "storage_bucket": "larolitaapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:943482955874:android:39573f61740815a08b493b",
+        "android_client_info": {
+          "package_name": "com.example.tesisrolita"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBXXXAw0x8b43iUrZ7rKm4X-U1O0orWbU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

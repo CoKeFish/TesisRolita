@@ -1,6 +1,5 @@
 package com.example.tesisrolita
 
-import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -8,6 +7,8 @@ import android.hardware.SensorManager
 import android.location.Location
 import android.os.Environment
 import android.util.Log
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -15,7 +16,7 @@ import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class DataSensorManager: SensorEventListener {
+class DataSensorManager : SensorEventListener {
     //region variables sensores
 
     //Variables del acelerometro
@@ -44,14 +45,22 @@ class DataSensorManager: SensorEventListener {
 
     //endregion
 
+
+    //Constructor
+
+
+    val db = Firebase.firestore
+
     //Variables adelantadas
     private lateinit var sensorManager: SensorManager
 
-    // Inicializar el sensor
-    private val gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-    private val gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
-    private val orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) // Obsoleto, pero aún se usa
-    private val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+    private lateinit var accelerometer: Sensor
+    private lateinit var gyroscope: Sensor
+    private lateinit var gravitySensor: Sensor
+    private lateinit var orientationSensor: Sensor
+
+    val dataBuffer = StringBuffer()
+
 
     override fun toString(): String {
 
@@ -70,16 +79,19 @@ class DataSensorManager: SensorEventListener {
                 lastY = event.values[1]
                 lastZ = event.values[2]
             }
+
             Sensor.TYPE_GYROSCOPE -> {
                 lastGyroX = event.values[0]
                 lastGyroY = event.values[1]
                 lastGyroZ = event.values[2]
             }
+
             Sensor.TYPE_GRAVITY -> {
                 lastGravityX = event.values[0]
                 lastGravityY = event.values[1]
                 lastGravityZ = event.values[2]
             }
+
             Sensor.TYPE_MAGNETIC_FIELD -> {
                 lastOrientationX = event.values[0]
                 lastOrientationY = event.values[1]
@@ -94,23 +106,28 @@ class DataSensorManager: SensorEventListener {
         Log.d("GPS", "LAT: ${ubicacion.latitude} - LON: ${ubicacion.longitude}")
     }
 
-    fun inicializarSensor(mySensorManager: SensorManager)
-    {
+    fun inicializarSensor(mySensorManager: SensorManager) {
 
         // Inicializar SensorManager y el sensor de tipo acelerómetro
         sensorManager = mySensorManager
 
-
+        // Inicializar el sensor
+        gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)!!
+        gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)!!
+        orientationSensor =
+            sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)!! // Obsoleto, pero aún se usa
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)!!
 
         // Registrar el listener
         sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_GAME)
         sensorManager.registerListener(this, gravitySensor, SensorManager.SENSOR_DELAY_GAME)
         sensorManager.registerListener(this, orientationSensor, SensorManager.SENSOR_DELAY_GAME)
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
+
+
     }
 
-    fun registerSensors()
-    {
+    fun registerSensors() {
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
         sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_GAME)
         sensorManager.registerListener(this, gravitySensor, SensorManager.SENSOR_DELAY_GAME)
@@ -118,8 +135,7 @@ class DataSensorManager: SensorEventListener {
 
     }
 
-    fun unregisterSensors()
-    {
+    fun unregisterSensors() {
         sensorManager.unregisterListener(this)
     }
 
@@ -133,6 +149,8 @@ class DataSensorManager: SensorEventListener {
         //Guardar el archivo
         val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         val file = File(path, "Texto.txt")
+
+        dataBuffer.append(toString())
 
         //Chekear archivo y guardar datos
         var writer: OutputStreamWriter? = null
@@ -150,5 +168,26 @@ class DataSensorManager: SensorEventListener {
                 // Ignorar
             }
         }
+    }
+
+    fun updateFirestore() {
+
+        // Create a new user with a first and last name
+        val user = hashMapOf(
+            "Timestamp" to System.currentTimeMillis(),
+            "Datas" to dataBuffer.toString()
+
+        )
+
+        dataBuffer.setLength(0)
+
+        val TAG = "null"
+// Add a new document with a generated ID
+        db.collection("users")
+            .document("DataSensorManager")
+            .set(user)
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error adding document", e)
+            }
     }
 }
