@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
                 dataSensorManager.writeSensorDataToFile()
             }
             // Repite cada 1000 ms (1 segundo), independientemente del valor de shouldRun
-            handler.postDelayed(this, 20)
+            handler.postDelayed(this, 200)
         }
     }
 
