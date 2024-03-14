@@ -2,4 +2,6 @@
     <string name="app_name">TesisRolita</string>
     <string name="buttonText">Conectar</string>
     <string name="Descripcion">Logo</string>
+    <string name="desconectar">Desconectar</string>
+    <string name="conectar">Conectar</string>
 </resources>
